@@ -1,8 +1,6 @@
-# StockFlow Assessment - My Solution Explained Simply
+# StockFlow Assessment - My Solution
 
-Hey! Here's how I solved the three parts of the StockFlow assessment. I tried to keep everything clean and easy to understand.
-
-## Part 1: What's Wrong with This Code? 🐛
+## Part 1: What's Wrong with This Code? 
 
 When I looked at the original product creation code, I found some serious problems that would cause headaches in production:
 
@@ -10,7 +8,7 @@ When I looked at the original product creation code, I found some serious proble
 
 **1. The Database Could Get Messed Up**
 ```python
-# Original problematic code:
+# Original code:
 db.session.add(product)
 db.session.commit()        # ← First save
 
@@ -35,12 +33,12 @@ There's no security - any random person could add products to any company's inve
 def create_product():
     data = request.json
     
-    # Step 1: Check if we have all the required stuff
+    # Check if we have all the required stuff
     required_fields = ['name', 'sku', 'price', 'warehouse_id', 'initial_quantity']
     if not all(field in data for field in required_fields):
         return {"error": "Hey, you're missing some required info!"}, 400
     
-    # Step 2: Make sure the data makes sense
+    #  Make sure the data makes sense
     try:
         price = float(data['price'])
         quantity = int(data['initial_quantity'])
@@ -52,11 +50,11 @@ def create_product():
     except ValueError:
         return {"error": "Price and quantity need to be numbers"}, 400
     
-    # Step 3: Check if SKU already exists (no duplicates!)
+    #  Check if SKU already exists (no duplicates!)
     if Product.query.filter_by(sku=data['sku']).first():
         return {"error": f"SKU '{data['sku']}' already exists"}, 409
     
-    # Step 4: Do everything in ONE transaction (all or nothing!)
+    # Do everything in ONE transaction (all or nothing!)
     try:
         # Create product
         product = Product(
@@ -89,7 +87,7 @@ def create_product():
         return {"error": "Something went wrong, please try again"}, 500
 ```
 
-## Part 2: Database Design 🏗️
+## Part 2: Database Design 
 
 I designed the database to handle a real B2B business with multiple companies, warehouses, and complex relationships.
 
@@ -173,7 +171,7 @@ CREATE TABLE product_suppliers (
 4. **Pricing**: Can the same product have different prices for different companies?
 5. **Data Retention**: How long should we keep the inventory history? Forever or just a few years?
 
-## Part 3: Low Stock Alerts API 🚨
+## Part 3: Low Stock Alerts API
 
 This is the fun part - building the smart alert system that tells businesses when they're running low on stock.
 
@@ -281,10 +279,8 @@ def get_low_stock_alerts(company_id):
 
 ## Why This Approach Works:
 
-✅ **Real Business Value**: Only alerts for products that actually sell  
-✅ **Actionable**: Includes supplier contact info for easy reordering  
-✅ **Smart Prioritization**: Shows most urgent alerts first  
-✅ **Handles Edge Cases**: Won't crash on weird data  
-✅ **Scalable**: Query is optimized and won't slow down with more data  
-
-This solution balances being sophisticated enough for a real B2B system while staying simple enough to understand and maintain!
+**Real Business Value**: Only alerts for products that actually sell  
+**Actionable**: Includes supplier contact info for easy reordering  
+**Smart Prioritization**: Shows most urgent alerts first  
+**Handles Edge Cases**: Won't crash on weird data  
+**Scalable**: Query is optimized and won't slow down with more data  
